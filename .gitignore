@@ -1,0 +1,30 @@
+# Folder node_modules
+node_modules/
+
+# File environment (kalau ada)
+.env
+
+# Log file
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Folder coverage kalau pakai testing
+coverage/
+
+# Folder output (jika ada build tools)
+dist/
+build/
+
+# VSCode setting (kalau pakai)
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# eslint cache (optional)
+.eslintcache
+
+# File Postman environment (jika mengandung token atau variabel sensitif)
+Notes API Test.postman_environment.json
