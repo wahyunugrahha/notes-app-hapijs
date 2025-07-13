@@ -1,11 +1,17 @@
 class NotesHandler {
   constructor(service) {
     this._service = service;
+
+    this.postNoteHandler = this.postNoteHandler.bind(this);
+    this.getNotesHandler = this.getNotesHandler.bind(this);
+    this.getNoteByIdHandler = this.getNoteByIdHandler.bind(this);
+    this.putNoteByIdHandler = this.putNoteByIdHandler.bind(this);
+    this.deleteNoteByIdHandler = this.deleteNoteByIdHandler.bind(this);
   }
 
   postNoteHandler(request, h) {
     try {
-      const { title = 'Untitled', body, tags } = request.payload;
+      const { title = 'untitled', body, tags } = request.payload;
 
       const noteId = this._service.addNote({ title, body, tags });
 
@@ -16,7 +22,6 @@ class NotesHandler {
           noteId,
         },
       });
-
       response.code(201);
       return response;
     } catch (error) {
@@ -39,7 +44,7 @@ class NotesHandler {
     };
   }
 
-  getNotByIdHanlder(request, h) {
+  getNoteByIdHandler(request, h) {
     try {
       const { id } = request.params;
       const note = this._service.getNoteById(id);
@@ -79,7 +84,7 @@ class NotesHandler {
     }
   }
 
-  deletNoteByIdHandler(request, h) {
+  deleteNoteByIdHandler(request, h) {
     try {
       const { id } = request.params;
       this._service.deleteNoteById(id);
@@ -90,11 +95,12 @@ class NotesHandler {
     } catch (error) {
       const response = h.response({
         status: 'fail',
-        message: error.message,
+        message: 'Catatan gagal dihapus. Id tidak ditemukan',
       });
       response.code(404);
       return response;
     }
   }
 }
+
 module.exports = NotesHandler;
