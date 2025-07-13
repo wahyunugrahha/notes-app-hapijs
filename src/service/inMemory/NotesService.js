@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const { nanoid } = require('nanoid');
 
 class NotesService {
@@ -26,7 +27,7 @@ class NotesService {
     return id;
   }
 
-  getNote() {
+  getNotes() {
     return this._notes;
   }
 
