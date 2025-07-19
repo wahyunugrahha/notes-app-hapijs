@@ -2,8 +2,8 @@
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
 const InvariantError = require('../../api/exceptions/InvariantError');
-const mapDBToModel = require('../../utils');
 const NotFoundError = require('../../api/exceptions/NotFoundError');
+const { mapDBToModel } = require('../../utils');
 
 class NotesService {
   constructor() {
@@ -16,7 +16,7 @@ class NotesService {
     const updatedAt = createdAt;
 
     const query = {
-      text: 'INSERT INTO notes  VALUES($1,$2,$3,$4,$5,$6) RETURNING id',
+      text: 'INSERT INTO notes VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
       values: [id, title, body, tags, createdAt, updatedAt],
     };
 
