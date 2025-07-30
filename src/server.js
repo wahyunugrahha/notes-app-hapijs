@@ -18,10 +18,10 @@ const users = require('./api/users');
 const UsersValidator = require('./validator/users');
 
 // Auth
-const AuthenticationsService = require('./service/postgres/AuthService');
-const authentications = require('./api/auth');
+const AuthenticationsService = require('./service/postgres/AuthenticationsService');
+const authentications = require('./api/authentications');
 const TokenManager = require('./tokenize/TokenManager');
-const AuthenticationsValidator = require('./validator/auth');
+const AuthenticationsValidator = require('./validator/authentications');
 
 const init = async () => {
   const notesService = new NotesService();
