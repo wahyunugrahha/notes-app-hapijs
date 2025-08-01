@@ -26,9 +26,6 @@ Thumbs.db
 # eslint cache (optional)
 .eslintcache
 
-# File Postman environment (jika mengandung token atau variabel sensitif)
-Notes API Test.postman_environment.json
-
 node_modules
 notes-api-web-server.pem
 .env
