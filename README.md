@@ -1,6 +1,6 @@
-# OpenMusic API V1
+# Notes App Backend (Hapi.js)
 
-This repository contains the backend for **OpenMusic API**, a robust and scalable music platform built with Node.js and PostgreSQL. It provides RESTful endpoints for managing albums and songs, including features for adding, retrieving, updating, and deleting musical content. The API also includes comprehensive validation and error handling.
+This repository hosts the backend for a Notes application, built using Hapi.js and PostgreSQL. It provides a RESTful API for managing user accounts, authenticating users, and handling personal notes with proper authorization.
 
 ## Table of Contents
 
@@ -13,40 +13,47 @@ This repository contains the backend for **OpenMusic API**, a robust and scalabl
   - [Environment Variables](#environment-variables)
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
-  - [Albums API](#albums-api)
-  - [Songs API](#songs-api)
+  - [Users API](#users-api)
+  - [Authentications API](#authentications-api)
+  - [Notes API](#notes-api)
 - [API Testing](#api-testing)
 
 ## Features
 
-* **Albums Management**:
-  * Add new albums with `name` and `year`.
-  * Retrieve album details, including associated songs.
-  * Update existing album information.
-  * Delete albums by ID.
-* **Songs Management**:
-  * Add new songs with `title`, `year`, `genre`, `performer`, `duration` (optional), and `albumId` (optional).
-  * Retrieve all songs, with optional filtering by `title` and `performer`.
-  * Get a specific song by ID.
-  * Edit song details by ID.
-  * Delete songs by ID.
-* **Robust Error Handling**: Utilizes custom error classes (`ClientError`, `InvariantError`, `NotFoundError`) for better error management and user feedback.
-* **Data Validation**: Implements Joi for request payload validation to ensure data integrity.
-* **PostgreSQL Database**: Uses PostgreSQL for data persistence.
-* **Code Quality**: Configured with ESLint and Prettier for consistent code style and error detection.
+* **Users Management**:
+  * Register new users with `username`, `password`, and `fullname`.
+  * Retrieve user details by ID.
+  * Ensures unique usernames.
+* **Authentication & Authorization**:
+  * User login and generation of Access and Refresh Tokens.
+  * Token refresh mechanism using a valid Refresh Token.
+  * Token invalidation (logout) by deleting the Refresh Token.
+  * JWT-based authentication strategy for protected routes.
+  * Authorization checks to ensure users can only access/modify their own notes.
+* **Notes Management**:
+  * Add new notes with `title`, `body`, and `tags`, associated with the authenticated user.
+  * Retrieve all notes owned by the authenticated user.
+  * Get a specific note by ID, with owner verification.
+  * Edit note details by ID, with owner verification.
+  * Delete notes by ID, with owner verification.
+* **Robust Error Handling**: Utilizes custom error classes (`ClientError`, `InvariantError`, `NotFoundError`, `AuthenticationError`, `AuthorizationError`) for precise error feedback.
+* **Data Validation**: Implements Joi for request payload validation across all endpoints.
+* **PostgreSQL Database**: Uses PostgreSQL for data persistence, managed with `node-pg-migrate` for schema evolution.
+* **Code Quality**: Enforced with ESLint (using `airbnb-base` configuration) and Prettier for consistent coding standards and automatic formatting.
 
 ## Technologies Used
 
 * **Node.js**: JavaScript runtime environment.
 * **Hapi.js**: A rich framework for building applications and services.
-* **PostgreSQL**: Relational database system.
-* **Joi**: Powerful schema description language and data validator.
-* **nanoid**: Tiny, secure, URL-friendly, unique string ID generator.
+* **PostgreSQL**: Robust open-source relational database.
+* **Joi**: Schema description language and validator.
+* **nanoid**: Secure, URL-friendly unique string ID generator.
 * **node-pg-migrate**: Database migration tool for PostgreSQL.
-* **nodemon**: Utility that monitors for any changes in your source and automatically restarts your server.
-* **dotenv**: Loads environment variables from a `.env` file.
-* **ESLint**: Pluggable JavaScript linter.
-* **globals**: Global variables from different JavaScript environments.
+* **bcrypt**: Password hashing library.
+* **@hapi/jwt**: JWT authentication plugin for Hapi.
+* **dotenv**: Loads environment variables from `.env` file.
+* **nodemon**: Development tool for automatic server restarts.
+* **ESLint**: JavaScript linter for code quality.
 
 ## Getting Started
 
@@ -61,8 +68,8 @@ Follow these instructions to set up and run the project locally.
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/wahyunugrahha/openmusic-api.git
-    cd openmusic-api
+    git clone https://github.com/wahyunugrahha/notes-app-hapijs.git
+    cd notes-app-hapijs
     ```
 
 2. **Install dependencies**:
@@ -74,16 +81,15 @@ Follow these instructions to set up and run the project locally.
 
 1. **Create a PostgreSQL database**:
     ```sql
-    CREATE DATABASE openmusicapi;
+    CREATE DATABASE notesapp;
     ```
 
 2. **Run migrations**:
-    The project uses `node-pg-migrate` for database migrations.
     ```bash
     npm run migrate up
     ```
 
-    This will create the `albums` and `songs` tables.
+    This will create the `notes`, `users`, and `authentications` tables, and add the `owner` column to the `notes` table.
 
 ### Environment Variables
 
@@ -94,49 +100,64 @@ PORT=5000
 HOST=localhost
 PGUSER=your_pg_username
 PGHOST=your_pg_host
-PGDATABASE=openmusicapi
+PGDATABASE=notesapp
 PGPASSWORD=your_pg_password
 PGPORT=5432
+ACCESS_TOKEN_KEY=your_access_token_secret
+REFRESH_TOKEN_KEY=your_refresh_token_secret
+ACCESS_TOKEN_AGE=1800
 ```
 
-Replace `your_pg_username`, `your_pg_host`, and `your_pg_password` with your PostgreSQL credentials.
+Replace `your_pg_username`, `your_pg_host`, `your_pg_password`, `your_access_token_secret`, and `your_refresh_token_secret` with your credentials and keys.
 
 ## Running the Application
 
-To start the API server in development mode (with nodemon for automatic restarts):
+To start the API server in development mode:
 
 ```bash
-npm start
+npm run start:dev
+```
+
+For production mode:
+
+```bash
+npm run start:prod
 ```
 
 The server will run on the specified HOST and PORT (e.g., `http://localhost:5000`).
 
 ## API Endpoints
 
-### Albums API
+### Users API
 
-| Method | Path          | Description             |
-|--------|---------------|-------------------------|
-| POST   | /albums       | Add a new album         |
-| GET    | /albums/{id}  | Get album details by ID |
-| PUT    | /albums/{id}  | Update an album by ID   |
-| DELETE | /albums/{id}  | Delete an album by ID   |
+| Method | Path         | Description              | Authentication Required |
+|--------|--------------|--------------------------|--------------------------|
+| POST   | /users       | Register a new user      | No                       |
+| GET    | /users/{id}  | Get user details by ID   | No                       |
 
-### Songs API
+### Authentications API
 
-| Method | Path          | Description                                        |
-|--------|---------------|----------------------------------------------------|
-| POST   | /songs        | Add a new song                                     |
-| GET    | /songs        | Get all songs (with optional filters)              |
-| GET    | /songs/{id}   | Get song details by ID                             |
-| PUT    | /songs/{id}   | Update a song by ID                                |
-| DELETE | /songs/{id}   | Delete a song by ID                                |
+| Method | Path               | Description                                    | Authentication Required |
+|--------|--------------------|------------------------------------------------|--------------------------|
+| POST   | /authentications   | Login and obtain Access/Refresh Tokens         | No                       |
+| PUT    | /authentications   | Refresh Access Token using Refresh Token       | No                       |
+| DELETE | /authentications   | Logout (invalidate Refresh Token)              | No                       |
+
+### Notes API
+
+| Method | Path         | Description                                    | Authentication Required |
+|--------|--------------|------------------------------------------------|--------------------------|
+| POST   | /notes       | Create a new note                              | Yes                      |
+| GET    | /notes       | Get all notes owned by the authenticated user  | Yes                      |
+| GET    | /notes/{id}  | Get a specific note by ID (owner only)         | Yes                      |
+| PUT    | /notes/{id}  | Update a note by ID (owner only)               | Yes                      |
+| DELETE | /notes/{id}  | Delete a note by ID (owner only)               | Yes                      |
 
 ## API Testing
 
-This repository includes a Postman collection and environment for testing the API endpoints.
+This repository includes a Postman collection and environment for comprehensive API testing:
 
-* `Open Music API V1 Test.postman_collection.json`: Contains all the API requests and tests.
-* `OpenMusic API Test.postman_environment.json`: Contains environment variables used in the Postman collection.
+- `Notes API Test.postman_collection.json`: Contains all API requests and tests.
+- `Notes API Test.postman_environment.json`: Contains environment variables used in testing.
 
-You can import these files into Postman to easily test the API functionality. Make sure the API server is running before executing the Postman tests.
+You can import these files into Postman. Ensure the server is running and environment variables are properly configured before testing.
