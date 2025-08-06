@@ -161,3 +161,5 @@ This repository includes a Postman collection and environment for comprehensive 
 - `Notes API Test.postman_environment.json`: Contains environment variables used in testing.
 
 You can import these files into Postman. Ensure the server is running and environment variables are properly configured before testing.
+
+Version 2.0
