@@ -1,14 +1,7 @@
-const ExportNotesPayloadSchema = require('.');
-const InvariantError = require('../../exceptions/InvariantError');
+const Joi = require('joi');
 
-const ExportsValidator = {
-  validateExportNotesPayload: (payload) => {
-    const validationResult = ExportNotesPayloadSchema.validate(payload);
+const ExportNotesPayloadSchema = Joi.object({
+  targetEmail: Joi.string().email({ tlds: true }).required(),
+});
 
-    if (validationResult.error) {
-      throw new InvariantError(validationResult.error.message);
-    }
-  },
-};
-
-module.exports = ExportsValidator;
+module.exports = ExportNotesPayloadSchema;
