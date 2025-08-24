@@ -1,101 +1,103 @@
 # Notes App Backend (Hapi.js)
 
-This repository hosts the backend for a Notes application, built using Hapi.js and PostgreSQL. It provides a RESTful API for managing user accounts, authenticating users, and handling personal notes with proper authorization.
+Repositori ini menyimpan backend untuk aplikasi **Notes**, yang dibangun dengan **Hapi.js** dan **PostgreSQL**. Repositori ini menyediakan **RESTful API** untuk mengelola akun pengguna, autentikasi pengguna, dan menangani catatan pribadi dengan otorisasi yang tepat.
 
-## Table of Contents
+---
 
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Database Setup](#database-setup)
-  - [Environment Variables](#environment-variables)
-- [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-  - [Users API](#users-api)
-  - [Authentications API](#authentications-api)
-  - [Notes API](#notes-api)
-- [API Testing](#api-testing)
+## 📑 Daftar Isi
 
-## Features
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
+- [Memulai](#-memulai)
+  - [Prasyarat](#-prasyarat)
+  - [Instalasi](#-instalasi)
+  - [Pengaturan Database](#-pengaturan-database)
+  - [Variabel Lingkungan](#-variabel-lingkungan)
+  - [Menjalankan Aplikasi](#-menjalankan-aplikasi)
+- [Endpoint API](#-endpoint-api)
+  - [API Pengguna](#api-pengguna)
+  - [API Autentikasi](#api-autentikasi)
+  - [API Catatan](#api-catan)
+  - [API Kolaborasi](#api-kolaborasi)
+  - [API Unggahan](#api-unggahan)
+  - [API Ekspor](#api-ekspor)
+- [Pengujian API](#-pengujian-api)
 
-* **Users Management**:
-  * Register new users with `username`, `password`, and `fullname`.
-  * Retrieve user details by ID.
-  * Ensures unique usernames.
-* **Authentication & Authorization**:
-  * User login and generation of Access and Refresh Tokens.
-  * Token refresh mechanism using a valid Refresh Token.
-  * Token invalidation (logout) by deleting the Refresh Token.
-  * JWT-based authentication strategy for protected routes.
-  * Authorization checks to ensure users can only access/modify their own notes.
-* **Notes Management**:
-  * Add new notes with `title`, `body`, and `tags`, associated with the authenticated user.
-  * Retrieve all notes owned by the authenticated user.
-  * Get a specific note by ID, with owner verification.
-  * Edit note details by ID, with owner verification.
-  * Delete notes by ID, with owner verification.
-* **Robust Error Handling**: Utilizes custom error classes (`ClientError`, `InvariantError`, `NotFoundError`, `AuthenticationError`, `AuthorizationError`) for precise error feedback.
-* **Data Validation**: Implements Joi for request payload validation across all endpoints.
-* **PostgreSQL Database**: Uses PostgreSQL for data persistence, managed with `node-pg-migrate` for schema evolution.
-* **Code Quality**: Enforced with ESLint (using `airbnb-base` configuration) and Prettier for consistent coding standards and automatic formatting.
+---
 
-## Technologies Used
+## 🚀 Fitur Utama
 
-* **Node.js**: JavaScript runtime environment.
-* **Hapi.js**: A rich framework for building applications and services.
-* **PostgreSQL**: Robust open-source relational database.
-* **Joi**: Schema description language and validator.
-* **nanoid**: Secure, URL-friendly unique string ID generator.
-* **node-pg-migrate**: Database migration tool for PostgreSQL.
-* **bcrypt**: Password hashing library.
-* **@hapi/jwt**: JWT authentication plugin for Hapi.
-* **dotenv**: Loads environment variables from `.env` file.
-* **nodemon**: Development tool for automatic server restarts.
-* **ESLint**: JavaScript linter for code quality.
+- **Manajemen Pengguna**: Registrasi, detail pengguna, verifikasi kredensial dengan username unik.
+- **Autentikasi & Otorisasi**: Login/logout menggunakan JWT & refresh token. Rute terlindungi memverifikasi kepemilikan catatan.
+- **Manajemen Catatan**: CRUD catatan, hanya dapat diakses oleh pemilik atau kolaborator.
+- **Kolaborasi**: Menambahkan kolaborator pada catatan tertentu.
+- **Unggahan File**: Upload gambar ke **AWS S3**.
+- **Ekspor Data**: Ekspor catatan via email menggunakan **RabbitMQ**.
+- **Caching**: Optimasi query catatan dengan **Redis**.
+- **Penanganan Error**: Menggunakan error kustom (ClientError, InvariantError, dll).
+- **Validasi Data**: Menggunakan **Joi**.
+- **Migrasi Database**: Dengan **node-pg-migrate**.
+- **Kualitas Kode**: ESLint dengan standar **airbnb-base**.
 
-## Getting Started
+---
 
-Follow these instructions to set up and run the project locally.
+## 🛠 Teknologi yang Digunakan
 
-### Prerequisites
+- Node.js
+- Hapi.js
+- PostgreSQL
+- Redis
+- RabbitMQ
+- AWS SDK (S3)
+- Joi
+- nanoid
+- node-pg-migrate
+- bcrypt
+- @hapi/jwt
+- @hapi/inert
+- dotenv
+- nodemon
+- ESLint
 
-* Node.js (>= 10)
-* PostgreSQL
+---
 
-### Installation
+## ⚡ Memulai
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/wahyunugrahha/notes-app-hapijs.git
-    cd notes-app-hapijs
-    ```
+### 📌 Prasyarat
 
-2. **Install dependencies**:
-    ```bash
-    npm install
-    ```
+- Node.js (>= 18)
+- PostgreSQL
+- Redis
+- RabbitMQ
+- AWS Account (S3 bucket & credentials)
 
-### Database Setup
+### 📥 Instalasi
 
-1. **Create a PostgreSQL database**:
-    ```sql
-    CREATE DATABASE notesapp;
-    ```
+```bash
+git clone https://github.com/wahyunugrahha/notes-app-hapijs.git
+cd notes-app-hapijs
+npm install
+```
 
-2. **Run migrations**:
-    ```bash
-    npm run migrate up
-    ```
+### 🗄 Pengaturan Database
 
-    This will create the `notes`, `users`, and `authentications` tables, and add the `owner` column to the `notes` table.
+Buat database:
 
-### Environment Variables
+```sql
+CREATE DATABASE notesapp;
+```
 
-Create a `.env` file in the root directory of the project with the following content:
+Jalankan migrasi:
 
-```dotenv
+```bash
+npm run migrate up
+```
+
+### ⚙️ Variabel Lingkungan
+
+Buat file `.env` di root project:
+
+```env
 PORT=5000
 HOST=localhost
 PGUSER=your_pg_username
@@ -106,60 +108,90 @@ PGPORT=5432
 ACCESS_TOKEN_KEY=your_access_token_secret
 REFRESH_TOKEN_KEY=your_refresh_token_secret
 ACCESS_TOKEN_AGE=1800
+AWS_REGION=your_aws_region
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+AWS_BUCKET_NAME=your_aws_bucket_name
+REDIS_SERVER=your_redis_server
+RABBITMQ_SERVER=your_rabbitmq_server
 ```
 
-Replace `your_pg_username`, `your_pg_host`, `your_pg_password`, `your_access_token_secret`, and `your_refresh_token_secret` with your credentials and keys.
+### ▶️ Menjalankan Aplikasi
 
-## Running the Application
-
-To start the API server in development mode:
+Development:
 
 ```bash
 npm run start:dev
 ```
 
-For production mode:
+Production:
 
 ```bash
 npm run start:prod
 ```
 
-The server will run on the specified HOST and PORT (e.g., `http://localhost:5000`).
+Server akan berjalan di: [http://localhost:5000](http://localhost:5000)
 
-## API Endpoints
+---
 
-### Users API
+## 📡 Endpoint API
 
-| Method | Path         | Description              | Authentication Required |
-|--------|--------------|--------------------------|--------------------------|
-| POST   | /users       | Register a new user      | No                       |
-| GET    | /users/{id}  | Get user details by ID   | No                       |
+### API Pengguna
 
-### Authentications API
+| Metode | Jalur       | Deskripsi                          | Autentikasi |
+| ------ | ----------- | ---------------------------------- | ----------- |
+| POST   | /users      | Registrasi pengguna baru           | ❌ Tidak    |
+| GET    | /users/{id} | Detail pengguna berdasarkan ID     | ❌ Tidak    |
+| GET    | /users      | Cari pengguna berdasarkan username | ❌ Tidak    |
 
-| Method | Path               | Description                                    | Authentication Required |
-|--------|--------------------|------------------------------------------------|--------------------------|
-| POST   | /authentications   | Login and obtain Access/Refresh Tokens         | No                       |
-| PUT    | /authentications   | Refresh Access Token using Refresh Token       | No                       |
-| DELETE | /authentications   | Logout (invalidate Refresh Token)              | No                       |
+### API Autentikasi
 
-### Notes API
+| Metode | Jalur            | Deskripsi                             | Autentikasi |
+| ------ | ---------------- | ------------------------------------- | ----------- |
+| POST   | /authentications | Login & dapatkan Access/Refresh Token | ❌ Tidak    |
+| PUT    | /authentications | Refresh Access Token                  | ❌ Tidak    |
+| DELETE | /authentications | Logout (hapus Refresh Token)          | ❌ Tidak    |
 
-| Method | Path         | Description                                    | Authentication Required |
-|--------|--------------|------------------------------------------------|--------------------------|
-| POST   | /notes       | Create a new note                              | Yes                      |
-| GET    | /notes       | Get all notes owned by the authenticated user  | Yes                      |
-| GET    | /notes/{id}  | Get a specific note by ID (owner only)         | Yes                      |
-| PUT    | /notes/{id}  | Update a note by ID (owner only)               | Yes                      |
-| DELETE | /notes/{id}  | Delete a note by ID (owner only)               | Yes                      |
+### API Catatan
 
-## API Testing
+| Metode | Jalur       | Deskripsi                                    | Autentikasi |
+| ------ | ----------- | -------------------------------------------- | ----------- |
+| POST   | /notes      | Membuat catatan baru                         | ✅ Ya       |
+| GET    | /notes      | Ambil semua catatan pengguna                 | ✅ Ya       |
+| GET    | /notes/{id} | Ambil catatan spesifik (pemilik/kolaborator) | ✅ Ya       |
+| PUT    | /notes/{id} | Update catatan (pemilik/kolaborator)         | ✅ Ya       |
+| DELETE | /notes/{id} | Hapus catatan (hanya pemilik)                | ✅ Ya       |
 
-This repository includes a Postman collection and environment for comprehensive API testing:
+### API Kolaborasi
 
-- `Notes API Test.postman_collection.json`: Contains all API requests and tests.
-- `Notes API Test.postman_environment.json`: Contains environment variables used in testing.
+| Metode | Jalur           | Deskripsi                          | Autentikasi |
+| ------ | --------------- | ---------------------------------- | ----------- |
+| POST   | /collaborations | Tambah kolaborator (hanya pemilik) | ✅ Ya       |
+| DELETE | /collaborations | Hapus kolaborator (hanya pemilik)  | ✅ Ya       |
 
-You can import these files into Postman. Ensure the server is running and environment variables are properly configured before testing.
+### API Unggahan
 
-Version 2.0
+| Metode | Jalur             | Deskripsi                        | Autentikasi |
+| ------ | ----------------- | -------------------------------- | ----------- |
+| POST   | /upload/images    | Upload gambar ke server/S3       | ❌ Tidak    |
+| GET    | /upload/{param\*} | Akses gambar yang sudah diupload | ❌ Tidak    |
+
+### API Ekspor
+
+| Metode | Jalur         | Deskripsi                            | Autentikasi |
+| ------ | ------------- | ------------------------------------ | ----------- |
+| POST   | /export/notes | Ekspor catatan ke email via RabbitMQ | ✅ Ya       |
+
+---
+
+## 🧪 Pengujian API
+
+Repositori ini menyertakan **Postman Collection** dan **Environment** untuk pengujian:
+
+- `Notes API Test.postman_collection.json`
+- `Notes API Test.postman_environment.json`
+
+> Import file di Postman, jalankan server, lalu tes endpoint sesuai variabel environment.
+
+---
+
